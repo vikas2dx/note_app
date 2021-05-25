@@ -50,9 +50,9 @@ class DatabaseHelper {
     return await db.insert(_tableName, row);
   }
 
-  Future<int> updateNote(Map<String, dynamic> row,int timeStamp) async {
+  Future<int> updateNote(Map<String, dynamic> row, int timeStamp) async {
     Database db = await instance.database;
-    return await db.update(_tableName, row,where: time_stamp + "= $timeStamp");
+    return await db.update(_tableName, row, where: time_stamp + "= $timeStamp");
   }
 
   Future<int> deleteNote(int timeStamp) async {
@@ -62,10 +62,7 @@ class DatabaseHelper {
 
   Future<List<NoteModel>> fetchNote() async {
     final Database db = await instance.database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      _tableName,
-      orderBy: time_stamp + " DESC",
-    );
+    final List<Map<String, dynamic>> maps = await db.query(_tableName);
     List<NoteModel> list = List();
     for (int i = 0; i < maps.length; i++) {
       list.add(NoteModel(
@@ -82,7 +79,6 @@ class DatabaseHelper {
     final List<Map<String, dynamic>> maps = await db.query(
       _tableName,
       where: isSync + "= 0",
-
     );
     List<NoteModel> list = List();
     for (int i = 0; i < maps.length; i++) {
@@ -95,12 +91,12 @@ class DatabaseHelper {
     print("Sync List $list");
     return list;
   }
+
   Future<List<NoteModel>> fetchedUnSyncedUpdate() async {
     final Database db = await instance.database;
     final List<Map<String, dynamic>> maps = await db.query(
       _tableName,
       where: is_update + "= 0",
-
     );
     List<NoteModel> list = List();
     for (int i = 0; i < maps.length; i++) {
@@ -113,24 +109,23 @@ class DatabaseHelper {
     print("Sync List $list");
     return list;
   }
+
   Future<List<NoteModel>> fetchedUnSyncedDelete() async {
     final Database db = await instance.database;
     final List<Map<String, dynamic>> maps = await db.query(
       _tableName,
       where: delete_sync + "= 0",
-
     );
     List<NoteModel> list = List();
     for (int i = 0; i < maps.length; i++) {
       list.add(NoteModel(
-          title: maps[i][title],
-          description: maps[i][description],
-          time_stamp: maps[i][time_stamp],
+        title: maps[i][title],
+        description: maps[i][description],
+        time_stamp: maps[i][time_stamp],
         delete_sync: maps[i][delete_sync],
       ));
     }
     print("Sync List $list");
     return list;
   }
-
 }

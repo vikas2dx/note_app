@@ -163,7 +163,7 @@ class NoteCubit extends Cubit<CubitState> {
           'is_sync': 1, //1 means data is synced
         };
 
-        databaseHelper.deleteNote(unSyncedAddList[i].time_stamp);
+        databaseHelper.updateNote(maps, unSyncedAddList[i].time_stamp);
         fetchNote(); //reload list if data is synced
       }).catchError((error) {});
     }
@@ -174,7 +174,7 @@ class NoteCubit extends Cubit<CubitState> {
     for (int i = 0; i < unSyncedUpdateList.length; i++) {
       CollectionReference news =
           FirebaseFirestore.instance.collection(FirebaseConstant.NOTE);
-      return news.doc(unSyncedUpdateList[i].time_stamp.toString()).update({
+       news.doc(unSyncedUpdateList[i].time_stamp.toString()).update({
         'title': unSyncedUpdateList[i].title,
         'description': unSyncedUpdateList[i].description,
         'time_stamp': unSyncedUpdateList[i].time_stamp,
@@ -186,12 +186,12 @@ class NoteCubit extends Cubit<CubitState> {
           'is_update': 1, //1 means data is synced
         };
 
-        databaseHelper.updateNote(maps, unSyncedAddList[i].time_stamp);
+        databaseHelper.updateNote(maps, unSyncedUpdateList[i].time_stamp);
         fetchNote(); //reload list if data is synced
       }).catchError((error) {});
     }
 
-    //sync edited data
+    //sync delete data
     var unSyncedDeleteList = await databaseHelper.fetchedUnSyncedDelete();
     print("unSyncedDeleteList $unSyncedDeleteList");
     for (int i = 0; i < unSyncedDeleteList.length; i++) {
@@ -207,8 +207,8 @@ class NoteCubit extends Cubit<CubitState> {
           'time_stamp': unSyncedDeleteList[i].time_stamp,
           'delete_sync': 1, //1 means data is synced
         };
-        databaseHelper.updateNote(maps, unSyncedAddList[i].time_stamp);
-        databaseHelper.deleteNote(unSyncedAddList[i].time_stamp);
+        databaseHelper.updateNote(maps, unSyncedDeleteList[i].time_stamp);
+        databaseHelper.deleteNote(unSyncedDeleteList[i].time_stamp);
         fetchNote();
       }).catchError((error) {});
     }
