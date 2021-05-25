@@ -1,10 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:note_app/ui/pages/DashboardPage.dart';
+import 'package:note_app/ui/resources/AppColor.dart';
 import 'package:note_app/ui/resources/AppDimen.dart';
+import 'package:note_app/ui/resources/AppFont.dart';
 import 'package:note_app/ui/resources/AppStrings.dart';
 import 'package:note_app/ui/widgets/CustomButton.dart';
-import 'package:note_app/ui/widgets/CustomTextFormField.dart';
 
 import 'LoginPage.dart';
 
@@ -21,6 +22,10 @@ class _RegisterpageState extends State<Registerpage> {
   final passwordController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  var _validateEmail=false;
+  var _validatePassword=false;
+
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -31,20 +36,63 @@ class _RegisterpageState extends State<Registerpage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              CustomTextFormField(
-                hintText: AppStrings.HINT_EMAIL,
+              TextFormField(
                 controller: emailController,
+                decoration: InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(
+                      horizontal: AppDimen.HORIZONTAL_PADDING_TEXTFIELD,
+                      vertical: AppDimen.VERTICAL_PADDING_TEXTFIELD),
+                  hintText: AppStrings.HINT_EMAIL,
+                  labelText: AppStrings.HINT_EMAIL,
+                  errorText:
+                  _validateEmail ? 'Email Can\'t Be Empty' : null,
+                  border: OutlineInputBorder(
+                      borderRadius:
+                      BorderRadius.circular(AppDimen.ROUNDED_RADIUS),
+                      borderSide:
+                      BorderSide(color: AppColor.borderGrey, width: 1)),
+                ),
+                style: TextStyle(fontSize: AppFont.MEDIUM),
               ),
               verticalGap,
-              CustomTextFormField(
-                hintText: AppStrings.HINT_PASSWORD,
+              TextFormField(
                 controller: passwordController,
+                decoration: InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(
+                      horizontal: AppDimen.HORIZONTAL_PADDING_TEXTFIELD,
+                      vertical: AppDimen.VERTICAL_PADDING_TEXTFIELD),
+                  hintText: AppStrings.HINT_PASSWORD,
+                  labelText: AppStrings.HINT_PASSWORD,
+                  errorText:
+                  _validatePassword ? 'Password Can\'t Be Empty' : null,
+                  border: OutlineInputBorder(
+                      borderRadius:
+                      BorderRadius.circular(AppDimen.ROUNDED_RADIUS),
+                      borderSide:
+                      BorderSide(color: AppColor.borderGrey, width: 1)),
+                ),
+                style: TextStyle(fontSize: AppFont.MEDIUM),
               ),
               verticalGap,
               CustomButton(
                 text: AppStrings.REGISTER,
                 pressedCallBack: () {
-                  registerUser();
+                  setState(() {
+                    if (emailController.text.isEmpty) {
+                      _validateEmail = true;
+                      return;
+                    } else {
+                      _validateEmail = false;
+                    }
+                    if (passwordController.text.isEmpty) {
+                      _validatePassword = true;
+                      return;
+                    } else {
+                      _validatePassword = false;
+                      registerUser();
+
+                    }
+                  });
                 },
               ),
               Padding(

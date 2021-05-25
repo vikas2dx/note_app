@@ -3,12 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:note_app/cubits/CubitState.dart';
 import 'package:note_app/cubits/SiginInCubit.dart';
 import 'package:note_app/ui/pages/DashboardPage.dart';
+import 'package:note_app/ui/resources/AppColor.dart';
 import 'package:note_app/ui/resources/AppDimen.dart';
+import 'package:note_app/ui/resources/AppFont.dart';
 import 'package:note_app/ui/resources/AppStrings.dart';
 import 'package:note_app/ui/widgets/CustomButton.dart';
-import 'package:note_app/ui/widgets/CustomTextFormField.dart';
 import 'package:note_app/ui/widgets/LoadingWidget.dart';
-
 
 import 'RegisterPage.dart';
 
@@ -26,6 +26,9 @@ class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
+  var _validateEmail = false;
+  var _validatePassword = false;
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -38,21 +41,64 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CustomTextFormField(
-                    hintText: AppStrings.HINT_EMAIL,
+                  TextFormField(
                     controller: emailController,
+                    decoration: InputDecoration(
+                      contentPadding: EdgeInsets.symmetric(
+                          horizontal: AppDimen.HORIZONTAL_PADDING_TEXTFIELD,
+                          vertical: AppDimen.VERTICAL_PADDING_TEXTFIELD),
+                      hintText: AppStrings.HINT_EMAIL,
+                      labelText: AppStrings.HINT_EMAIL,
+                      errorText:
+                          _validateEmail ? 'Email Can\'t Be Empty' : null,
+                      border: OutlineInputBorder(
+                          borderRadius:
+                              BorderRadius.circular(AppDimen.ROUNDED_RADIUS),
+                          borderSide:
+                              BorderSide(color: AppColor.borderGrey, width: 1)),
+                    ),
+                    style: TextStyle(fontSize: AppFont.MEDIUM),
                   ),
                   verticalGap,
-                  CustomTextFormField(
-                    hintText: AppStrings.HINT_PASSWORD,
+                  TextFormField(
                     controller: passwordController,
+                    decoration: InputDecoration(
+                      contentPadding: EdgeInsets.symmetric(
+                          horizontal: AppDimen.HORIZONTAL_PADDING_TEXTFIELD,
+                          vertical: AppDimen.VERTICAL_PADDING_TEXTFIELD),
+                      hintText: AppStrings.HINT_PASSWORD,
+                      labelText: AppStrings.HINT_PASSWORD,
+                      errorText:
+                          _validatePassword ? 'Password Can\'t Be Empty' : null,
+                      border: OutlineInputBorder(
+                          borderRadius:
+                              BorderRadius.circular(AppDimen.ROUNDED_RADIUS),
+                          borderSide:
+                              BorderSide(color: AppColor.borderGrey, width: 1)),
+                    ),
+                    style: TextStyle(fontSize: AppFont.MEDIUM),
                   ),
                   verticalGap,
                   CustomButton(
                     text: AppStrings.LOGIN,
                     pressedCallBack: () async {
-                      signInCubit.signInEmail(
-                          emailController.text, passwordController.text);
+                      setState(() {
+                        if (emailController.text.isEmpty) {
+                          _validateEmail = true;
+                          return;
+                        } else {
+                          _validateEmail = false;
+                        }
+                        if (passwordController.text.isEmpty) {
+                          _validatePassword = true;
+                          return;
+                        } else {
+                          _validatePassword = false;
+                          signInCubit.signInEmail(
+                              emailController.text, passwordController.text);
+                        }
+                      });
+
                       // signInEmail();
                     },
                   ),

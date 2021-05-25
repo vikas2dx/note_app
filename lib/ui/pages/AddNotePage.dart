@@ -5,19 +5,22 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:note_app/cubits/NoteCubit.dart';
 import 'package:note_app/cubits/UICubit.dart';
 import 'package:note_app/model/NoteModel.dart';
+import 'package:note_app/ui/resources/AppColor.dart';
+import 'package:note_app/ui/resources/AppDimen.dart';
+import 'package:note_app/ui/resources/AppFont.dart';
 import 'package:note_app/ui/resources/AppStrings.dart';
 import 'package:note_app/ui/widgets/CustomButton.dart';
-import 'package:note_app/ui/widgets/CustomTextFormField.dart';
 import 'package:note_app/ui/widgets/LoadingWidget.dart';
 import 'package:note_app/utils/NetworkUtils.dart';
 
 class AddNotePage extends StatefulWidget {
   bool isUpdate = false;
   NoteModel noteModel;
-  AddNotePage({this.isUpdate,this.noteModel});
+
+  AddNotePage({this.isUpdate, this.noteModel});
 
   @override
-  _AddNotePageState createState() => _AddNotePageState(isUpdate,noteModel);
+  _AddNotePageState createState() => _AddNotePageState(isUpdate, noteModel);
 }
 
 class _AddNotePageState extends State<AddNotePage> {
@@ -30,6 +33,8 @@ class _AddNotePageState extends State<AddNotePage> {
   FirebaseFirestore firestore;
   bool isUpdate = false;
   NoteModel noteModel;
+  bool _validateTitle = false;
+  bool _validateDescription = false;
 
   _AddNotePageState(this.isUpdate, this.noteModel);
 
@@ -57,14 +62,43 @@ class _AddNotePageState extends State<AddNotePage> {
               Builder(builder: (scaffoldContext) {
                 return Column(
                   children: [
-                    CustomTextFormField(
-                      hintText: AppStrings.NOTE_TITLE,
+                    TextFormField(
                       controller: titleController,
+                      decoration: InputDecoration(
+                        contentPadding: EdgeInsets.symmetric(
+                            horizontal: AppDimen.HORIZONTAL_PADDING_TEXTFIELD,
+                            vertical: AppDimen.VERTICAL_PADDING_TEXTFIELD),
+                        hintText: AppStrings.NOTE_TITLE,
+                        labelText: AppStrings.NOTE_TITLE,
+                        errorText:
+                            _validateTitle ? 'Title Can\'t Be Empty' : null,
+                        border: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.circular(AppDimen.ROUNDED_RADIUS),
+                            borderSide: BorderSide(
+                                color: AppColor.borderGrey, width: 1)),
+                      ),
+                      style: TextStyle(fontSize: AppFont.MEDIUM),
                     ),
                     verticalGap,
-                    CustomTextFormField(
-                      hintText: AppStrings.NOTE_DESCRIPTION,
+                    TextFormField(
                       controller: descriptionController,
+                      decoration: InputDecoration(
+                        contentPadding: EdgeInsets.symmetric(
+                            horizontal: AppDimen.HORIZONTAL_PADDING_TEXTFIELD,
+                            vertical: AppDimen.VERTICAL_PADDING_TEXTFIELD),
+                        hintText: AppStrings.NOTE_DESCRIPTION,
+                        labelText: AppStrings.NOTE_DESCRIPTION,
+                        errorText: _validateDescription
+                            ? 'Description Can\'t Be Empty'
+                            : null,
+                        border: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.circular(AppDimen.ROUNDED_RADIUS),
+                            borderSide: BorderSide(
+                                color: AppColor.borderGrey, width: 1)),
+                      ),
+                      style: TextStyle(fontSize: AppFont.MEDIUM),
                     ),
                     verticalGap,
                     CustomButton(
@@ -72,11 +106,26 @@ class _AddNotePageState extends State<AddNotePage> {
                           ? AppStrings.NOTE_UPDATE
                           : AppStrings.NOTE_ADD,
                       pressedCallBack: () async {
-                        if (isUpdate) {
-                          noteUpdate();
-                        } else {
-                          noteAdd();
-                        }
+                        setState(() {
+                          if (titleController.text.isEmpty) {
+                            _validateTitle = true;
+                          } else {
+                            _validateTitle = false;
+                          }
+                          if (descriptionController.text.isEmpty) {
+                            _validateDescription = true;
+                            return;
+                          } else {
+                            _validateDescription = false;
+                          }
+                          if (!_validateTitle && !_validateDescription) {
+                            if (isUpdate) {
+                              noteUpdate();
+                            } else {
+                              noteAdd();
+                            }
+                          }
+                        });
                       },
                     )
                   ],
@@ -108,7 +157,7 @@ class _AddNotePageState extends State<AddNotePage> {
         'is_sync': 0, //data need to be synced
         'is_update': 1, //no need of update
       };
-      int id = await newsCubit.addNoteOffline(maps,timeStamp);
+      int id = await newsCubit.addNoteOffline(maps, timeStamp);
       if (id > 0) {
         Navigator.pop(context, true);
       }
@@ -118,7 +167,11 @@ class _AddNotePageState extends State<AddNotePage> {
   void noteUpdate() async {
     if (await NetworkUtils.isInternetAvailable()) {
       newsCubit.updateNoteToFirebase(
-          titleController.text, descriptionController.text, context, noteModel.time_stamp,noteModel.time_stamp.toString());
+          titleController.text,
+          descriptionController.text,
+          context,
+          noteModel.time_stamp,
+          noteModel.time_stamp.toString());
     } else {
       //No internet case
       Map<String, dynamic> maps = {
@@ -128,9 +181,8 @@ class _AddNotePageState extends State<AddNotePage> {
         'is_sync': 1, //data not need to be synced
         'is_update': 0, //data need to be update
         'delete_sync': 1, //data need to be update
-
       };
-      int id = await newsCubit.updateNote(maps,noteModel.time_stamp);
+      int id = await newsCubit.updateNote(maps, noteModel.time_stamp);
       if (id > 0) {
         Navigator.pop(context, true);
       }
