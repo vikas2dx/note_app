@@ -82,6 +82,7 @@ class _LoginPageState extends State<LoginPage> {
                   CustomButton(
                     text: AppStrings.LOGIN,
                     pressedCallBack: () async {
+
                       setState(() {
                         if (emailController.text.isEmpty) {
                           _validateEmail = true;
@@ -94,6 +95,7 @@ class _LoginPageState extends State<LoginPage> {
                           return;
                         } else {
                           _validatePassword = false;
+
                           signInCubit.signInEmail(
                               emailController.text, passwordController.text);
                         }

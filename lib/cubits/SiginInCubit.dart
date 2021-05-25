@@ -1,9 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:note_app/cubits/CubitState.dart';
 import 'package:note_app/cubits/UICubit.dart';
+import 'package:note_app/ui/pages/LoginPage.dart';
 import 'package:note_app/utils/PreferencesUtils.dart';
-
 
 class SignInCubit extends Cubit<CubitState> {
   UICubit<bool> loaderCubit = UICubit<bool>(false);
@@ -34,5 +37,18 @@ class SignInCubit extends Cubit<CubitState> {
         emit(FailedState(message: 'Unknown error'));
       }
     }
+  }
+
+  Future<void> passwordChanged(String password, BuildContext context) async {
+    var user = await FirebaseAuth.instance.currentUser;
+    //Pass in the password to updatePassword.
+    user.updatePassword(password).then((_) {
+      print("Successfully changed password");
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => LoginPage(),));
+    }).catchError((error) {
+      print("Password can't be changed" + error.toString());
+      //This might happen, when the wrong password is in, the user isn't found, or if the user hasn't logged in recently.
+    });
   }
 }

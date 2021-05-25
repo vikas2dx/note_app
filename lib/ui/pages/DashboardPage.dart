@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:note_app/cubits/CubitState.dart';
 import 'package:note_app/cubits/NoteCubit.dart';
 import 'package:note_app/ui/pages/AddNotePage.dart';
+import 'package:note_app/ui/pages/ChangePassword.dart';
 import 'package:note_app/ui/pages/LoginPage.dart';
 import 'package:note_app/ui/resources/AppColor.dart';
 import 'package:note_app/ui/widgets/LoadingWidget.dart';
@@ -29,7 +30,12 @@ class _DashboardPageState extends State<DashboardPage> {
               builder: (context) => LoginPage(),
             ));
         break;
-      case 'Support':
+      case 'Change Password':
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ChangePassword(),
+            ));
         break;
     }
   }
@@ -50,7 +56,7 @@ class _DashboardPageState extends State<DashboardPage> {
             PopupMenuButton(
               onSelected: handleClick,
               itemBuilder: (context) {
-                return {'Logout', 'Support'}.map((String choice) {
+                return {'Logout', 'Change Password'}.map((String choice) {
                   return PopupMenuItem<String>(
                     value: choice,
                     child: Text(choice),
